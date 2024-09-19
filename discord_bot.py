@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from new_agent import ChatAgent
+from agent import ChatAgent
 
 load_dotenv()
 discord_bot_token = os.getenv('DISCORD_BOT_TOKEN')
