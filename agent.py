@@ -1,5 +1,6 @@
 from dateutil.parser import parse
 from datetime import datetime 
+import re
 
 from langchain_anthropic import ChatAnthropic
 from langgraph.checkpoint import MemorySaver
@@ -17,6 +18,7 @@ def fetch_twitter_data(username='', keywords=[]):
     account_fetcher = AccountFetcher()
     tweet_fetcher = TweetFetcher()
     
+    # Hardcode last year
     start_date="2024-01-01"
     end_date="2024-12-31"
     start_date = datetime.strptime(start_date, '%Y-%m-%d').replace(hour=0, minute=0, second=0)
@@ -40,16 +42,26 @@ def fetch_twitter_data(username='', keywords=[]):
     if not user_tweets:
         return "No tweets found"
 
-    # Sort tweets by date in descending order
-    user_tweets.sort(key=lambda x: parse(x['created_at']), reverse=True)
+    # Sort tweets by likes in descending order
+    user_tweets.sort(key=lambda x: x['favorite_count'], reverse=True)
 
-    return user_tweets[:100]
+    # Regular expression pattern to match URLs
+    url_pattern = re.compile(r'https?://\S+|www\.\S+')
+    def remove_urls(text):
+        return url_pattern.sub('', text)
+
+    # Filter content
+    content = [remove_urls(tweet["full_text"]) for tweet in user_tweets[:30]]
+
+    print(content)
+
+    return content
 
 class ChatAgent:
     def __init__(self, anthropic_api_key, tavily_api_key, base_prompt, vectorstore=None):
 
         # Set up language model
-        self.model = ChatAnthropic(model_name="claude-3-5-sonnet-20240620", api_key=anthropic_api_key)
+        self.model = ChatAnthropic(model_name="claude-3-haiku-20240307", api_key=anthropic_api_key)
 
         # Set up memory
         self.memory = MemorySaver()

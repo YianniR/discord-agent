@@ -96,7 +96,7 @@ async def define(ctx):
         await reply_to_user(ctx, response)
 
         await ctx.send("If you wish to provide context, use this command in a thread reply for the message you wish to use as context.")
-related.help = "Returns the definition to a term."
+define.help = "Returns the definition to a term."
 
 @client.command(name="exit", category="General")
 async def exit(ctx):
